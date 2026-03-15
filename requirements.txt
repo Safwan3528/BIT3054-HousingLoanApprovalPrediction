@@ -1,10 +1,11 @@
 Flask
 Flask-Login
-Flask-SQLAlchemy
+flask-mongoengine
+mongoengine
+pymongo
 pandas
 numpy
 scikit-learn
 joblib
-psycopg2-binary
 gunicorn
 python-dotenv

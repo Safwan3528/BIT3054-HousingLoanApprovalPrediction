@@ -1,10 +1,9 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from config import Config
+from flask_login import LoginManager
+from mongoengine import connect
 import os
 
-db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
@@ -12,8 +11,10 @@ login_manager.login_message_category = 'info'
 def create_app(config_class=Config):
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.from_object(config_class)
-
-    db.init_app(app)
+    
+    # Initialize MongoEngine
+    connect(host=app.config['MONGODB_SETTINGS']['host'])
+    
     login_manager.init_app(app)
 
     # Register models here to ensure they are known to SQLAlchemy
@@ -21,7 +22,7 @@ def create_app(config_class=Config):
     
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        return User.objects(id=user_id).first()
 
     from app.auth import auth_bp
     app.register_blueprint(auth_bp)

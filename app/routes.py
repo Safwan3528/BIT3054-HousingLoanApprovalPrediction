@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models import LoanApplication, Prediction, User
-from app import db
+
 import joblib
 import os
 import pandas as pd
@@ -17,7 +17,7 @@ def dashboard():
     if current_user.role == 'admin':
         return redirect(url_for('main.admin_dashboard'))
         
-    user_apps = LoanApplication.query.filter_by(user_id=current_user.id).order_by(LoanApplication.created_at.desc()).all()
+    user_apps = LoanApplication.objects(user=current_user.id).order_by('-created_at')
     approved_count = sum(1 for app in user_apps if app.prediction == 'Approved')
     rejected_count = sum(1 for app in user_apps if app.prediction == 'Rejected')
     
@@ -43,7 +43,7 @@ def loan_form():
         
         # Save application
         application = LoanApplication(
-            user_id=current_user.id,
+            user=current_user.id,
             income=income,
             coapplicant_income=coapplicant_income,
             loan_amount=loan_amount,
@@ -54,8 +54,7 @@ def loan_form():
             dependents=dependents,
             property_area=property_area
         )
-        db.session.add(application)
-        db.session.commit()
+        application.save()
         
         # ML Prediction
         try:
@@ -82,20 +81,24 @@ def loan_form():
             result = 'Error'
             
         application.prediction = result
+        application.save()
         
-        pred_record = Prediction(application_id=application.application_id, result=result)
-        db.session.add(pred_record)
-        db.session.commit()
+        pred_record = Prediction(application=application, result=result)
+        pred_record.save()
         
-        return redirect(url_for('main.result', id=application.application_id))
+        return redirect(url_for('main.result', id=str(application.id)))
         
     return render_template('loan_form.html')
 
-@main_bp.route('/result/<int:id>')
+@main_bp.route('/result/<id>')
 @login_required
 def result(id):
-    application = LoanApplication.query.get_or_404(id)
-    if application.user_id != current_user.id and current_user.role != 'admin':
+    application = LoanApplication.objects(id=id).first()
+    if not application:
+        flash("Application not found", "danger")
+        return redirect(url_for('main.dashboard'))
+        
+    if str(application.user.id) != str(current_user.id) and current_user.role != 'admin':
         flash("Unauthorized access", "danger")
         return redirect(url_for('main.dashboard'))
         
@@ -108,5 +111,6 @@ def admin_dashboard():
         flash('Access denied.', 'danger')
         return redirect(url_for('main.dashboard'))
         
-    applications = LoanApplication.query.order_by(LoanApplication.created_at.desc()).all()
+    applications = LoanApplication.objects().order_by('-created_at')
     return render_template('admin_dashboard.html', applications=applications)
+

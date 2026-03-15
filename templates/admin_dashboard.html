@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark">Admin Console</h2>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0 fw-bold text-primary">All Network Loan Applications</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark text-white">
+                <tr>
+                    <th class="py-3 px-4">Ref ID</th>
+                    <th class="py-3">Applicant Name</th>
+                    <th class="py-3">Income</th>
+                    <th class="py-3">Loan Amt</th>
+                    <th class="py-3">Credit His.</th>
+                    <th class="py-3">Prediction</th>
+                    <th class="py-3 px-4">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td class="px-4 fw-bold text-secondary">#{{ app.application_id }}</td>
+                    <td class="fw-semibold">{{ app.applicant.name }}</td>
+                    <td>${{ app.income }}</td>
+                    <td>${{ app.loan_amount }}</td>
+                    <td>{{ app.credit_history }}</td>
+                    <td>
+                        {% if app.prediction == 'Approved' %}
+                            <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill border border-success-subtle">Approved</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-3 py-1 rounded-pill border border-danger-subtle">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 text-muted small">{{ app.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

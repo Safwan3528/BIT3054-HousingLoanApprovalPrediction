@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white text-center py-3 border-0">
+                <h4 class="fw-bold mb-0">Login to System</h4>
+            </div>
+            <div class="card-body p-4">
+                <form action="{{ url_for('auth.login') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold">Email address</label>
+                        <input type="email" name="email" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-semibold">Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg" required>
+                    </div>
+                    <button class="btn btn-primary btn-lg w-100 fw-bold" type="submit">Login</button>
+                </form>
+                <div class="mt-4 text-center text-muted small bg-light p-3 rounded">
+                    <p class="mb-2"><strong>First time setup?</strong> <a href="{{ url_for('auth.register_dummy') }}" class="text-decoration-none">Click here to generate mock users</a></p>
+                    <ul class="list-unstyled mb-0 text-start d-inline-block">
+                        <li>👤 <strong>User:</strong> user@test.com / password</li>
+                        <li>🛡️ <strong>Admin:</strong> admin@test.com / admin</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

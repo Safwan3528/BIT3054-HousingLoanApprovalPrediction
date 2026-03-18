@@ -13,7 +13,7 @@ class User(UserMixin, me.Document):
         return str(self.id)
 
 class LoanApplication(me.Document):
-    meta = {'collection': 'loan_applications'}
+    meta = {'collection': 'loan_applications', 'strict': False}
     user = me.ReferenceField(User, required=True, reverse_delete_rule=me.CASCADE)
     income = me.FloatField(required=True)
     coapplicant_income = me.FloatField(required=True)

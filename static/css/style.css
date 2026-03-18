@@ -20,9 +20,26 @@ body {
     color: var(--text-main);
 }
 
-.navbar {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    box-shadow: var(--shadow-md);
+.navbar-glass {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+.navbar-glass .nav-link {
+    color: var(--text-main) !important;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar-glass .nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+.navbar-glass .navbar-brand {
+    color: var(--primary-color) !important;
 }
 
 .navbar-brand {

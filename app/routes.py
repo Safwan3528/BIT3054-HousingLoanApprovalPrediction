@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app.models import LoanApplication, Prediction, User
+from werkzeug.security import generate_password_hash
 
 import joblib
 import os
@@ -118,4 +119,71 @@ def admin_dashboard():
         
     applications = LoanApplication.objects().order_by('-created_at')
     return render_template('admin_dashboard.html', applications=applications)
+
+@main_bp.route('/admin/users')
+@login_required
+def admin_users():
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    users = User.objects().order_by('name')
+    return render_template('admin_users.html', users=users)
+
+@main_bp.route('/admin/users/add', methods=['POST'])
+@login_required
+def add_user():
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    name = request.form.get('name')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    role = request.form.get('role', 'user')
+    
+    # Check if user already exists
+    if User.objects(email=email).first():
+        flash('Email address already registered.', 'danger')
+        return redirect(url_for('main.admin_users'))
+        
+    try:
+        new_user = User(
+            name=name,
+            email=email,
+            password=generate_password_hash(password),
+            role=role
+        )
+        new_user.save()
+        flash(f'User {name} successfully created.', 'success')
+    except Exception as e:
+        flash(f'An error occurred while creating the user.', 'danger')
+        print(f"Error adding user: {e}")
+        
+    return redirect(url_for('main.admin_users'))
+
+@main_bp.route('/admin/users/delete/<user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+        
+    # Prevent admin from deleting themselves
+    if str(current_user.id) == user_id:
+        flash('You cannot delete your own admin account.', 'warning')
+        return redirect(url_for('main.admin_users'))
+        
+    try:
+        user_to_delete = User.objects(id=user_id).first()
+        if user_to_delete:
+            user_to_delete.delete()
+            flash('User deleted successfully.', 'success')
+        else:
+            flash('User not found.', 'danger')
+    except Exception as e:
+        flash(f'An error occurred while deleting the user.', 'danger')
+        print(f"Error deleting user: {e}")
+        
+    return redirect(url_for('main.admin_users'))
 

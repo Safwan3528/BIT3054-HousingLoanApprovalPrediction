@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}User Management{% endblock %}
+{% block page_title %}System User Directory{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-5">
+    <div class="col-md-3">
+        <div class="card stat-card border-0">
+            <div class="stat-icon bg-primary-navy bg-opacity-10 text-navy">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value">{{ users|length }}</div>
+            <div class="stat-label">Total Accounts</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0">
+            <div class="stat-icon bg-emerald-light text-emerald-green">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'admin') | list | length }}</div>
+            <div class="stat-label">Administrators</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0">
+            <div class="stat-icon bg-indigo bg-opacity-10 text-indigo" style="background-color: rgba(102, 16, 242, 0.1); color: #6610f2;">
+                <i class="bi bi-person-vcard-fill"></i>
+            </div>
+            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'staff') | list | length }}</div>
+            <div class="stat-label">Loan Analysts</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-0">
+            <div class="stat-icon bg-info bg-opacity-10 text-info">
+                <i class="bi bi-clipboard-check-fill"></i>
+            </div>
+            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'user') | list | length }}</div>
+            <div class="stat-label">Auditors / Guests</div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Active System Users</h5>
+        <button class="btn btn-emerald-green text-white px-4 fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="bi bi-person-plus-fill me-2"></i> Create New User
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3 small text-uppercase text-muted fw-800">User Identity</th>
+                    <th class="py-3 small text-uppercase text-muted fw-800">Email Address</th>
+                    <th class="py-3 small text-uppercase text-muted fw-800">System Role</th>
+                    <th class="pe-4 py-3 small text-uppercase text-muted fw-800 text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name={{ user.name | urlencode }}&background=0a192f&color=fff&rounded=true&size=32" alt="Avatar" class="rounded-circle shadow-sm">
+                            <div class="fw-bold text-navy">{{ user.name }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-secondary small">{{ user.email }}</div>
+                    </td>
+                    <td>
+                        {% if user.role == 'admin' %}
+                        <span class="badge bg-navy text-white px-3 py-2 rounded-pill small" style="background: var(--primary-navy)">Administrator</span>
+                        {% elif user.role == 'staff' %}
+                        <span class="badge bg-emerald-light text-emerald-green px-3 py-2 rounded-pill small">Loan Analyst</span>
+                        {% else %}
+                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill small border text-dark">Auditor / Guest</span>
+                        {% endif %}
+                    </td>
+                    <td class="pe-4 text-end">
+                        {% if user.id|string != current_user.id|string %}
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-sm border" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                                <li>
+                                    <a class="dropdown-item py-2 edit-user-btn" href="#" 
+                                       data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                       data-id="{{ user.id }}" data-name="{{ user.name }}" 
+                                       data-email="{{ user.email }}" data-role="{{ user.role }}">
+                                        <i class="bi bi-pencil-square me-2"></i> Edit Permissions
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-key me-2"></i> Reset Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+                                        <button type="submit" class="dropdown-item py-2 text-danger"><i class="bi bi-trash me-2"></i> Terminate Account</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill small">Active Session</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-navy text-white py-4" style="background: var(--primary-navy)">
+                <h5 class="modal-title fw-bold">Provision New Access</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('main.add_user') }}" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Full Name</label>
+                        <input type="text" name="name" class="form-control py-2 shadow-none border-2" required placeholder="Enter staff name">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Corporate Email</label>
+                        <input type="email" name="email" class="form-control py-2 shadow-none border-2" required placeholder="staff@bank.com.my">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Temporary Password</label>
+                        <input type="password" name="password" class="form-control py-2 shadow-none border-2" required placeholder="Min 8 characters">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
+                        <select name="role" class="form-select py-2 shadow-none border-2" required>
+                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="admin">System Administrator</option>
+                            <option value="user">Auditor / Guest</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-4 px-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold rounded-pill border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-5 fw-bold rounded-pill shadow">Authorize User Access</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-emerald-green text-white py-4" style="background: var(--emerald-green)">
+                <h5 class="modal-title fw-bold">Modify User Access</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Full Name</label>
+                        <input type="text" name="name" id="edit_name" class="form-control py-2 shadow-none border-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Corporate Email</label>
+                        <input type="email" name="email" id="edit_email" class="form-control py-2 shadow-none border-2" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
+                        <select name="role" id="edit_role" class="form-select py-2 shadow-none border-2" required>
+                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="admin">System Administrator</option>
+                            <option value="user">Auditor / Guest</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-4 px-4">
+                    <button type="button" class="btn btn-light px-4 fw-bold rounded-pill border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-emerald-green text-white px-5 fw-bold rounded-pill shadow">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editBtns = document.querySelectorAll('.edit-user-btn');
+    const editForm = document.getElementById('editUserForm');
+    const editName = document.getElementById('edit_name');
+    const editEmail = document.getElementById('edit_email');
+    const editRole = document.getElementById('edit_role');
+    
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const email = this.getAttribute('data-email');
+            const role = this.getAttribute('data-role');
+            
+            editForm.action = "{{ url_for('main.update_user', user_id='PLACEHOLDER') }}".replace('PLACEHOLDER', id);
+            editName.value = name;
+            editEmail.value = email;
+            editRole.value = role;
+        });
+    });
+});
+</script>
+{% endblock %}
+

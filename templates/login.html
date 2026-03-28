@@ -1,31 +1,93 @@
 {% extends "base.html" %}
-{% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-white text-center py-3 border-0">
-                <h4 class="fw-bold mb-0">Login to System</h4>
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <!-- Sidebar Illustration Area -->
+        <div class="auth-sidebar">
+            <div class="mb-5">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="bg-emerald-green p-3 rounded-4 shadow-lg">
+                        <i class="bi bi-bank2 text-white fs-1"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0 fw-800 tracking-tight">HOME FINANCING</h2>
+                        <p class="text-white-50 small mb-0 fw-bold">Predictive Assessment Portal</p>
+                    </div>
+                </div>
+                <h1 class="display-5 fw-800 mb-4">Intelligent Home Loan Prediction Dashboard.</h1>
+                <p class="lead text-white-50">Decision support system for multi-criteria Malaysian home financing assessments.</p>
+
+
             </div>
-            <div class="card-body p-4">
-                <form action="{{ url_for('auth.login') }}" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label text-muted fw-semibold">Email address</label>
-                        <input type="email" name="email" class="form-control form-control-lg" required>
+            
+            <div class="mt-auto">
+                <div class="d-flex align-items-center gap-3 p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
+                    <div class="bg-emerald-green p-2 rounded-circle">
+                        <i class="bi bi-shield-lock-fill text-white"></i>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label text-muted fw-semibold">Password</label>
-                        <input type="password" name="password" class="form-control form-control-lg" required>
+                    <div>
+                        <p class="mb-0 small fw-bold text-white">Enterprise Grade Security</p>
+                        <p class="mb-0 x-small text-white-50">256-bit encryption enabled</p>
                     </div>
-                    <button class="btn btn-primary btn-lg w-100 fw-bold" type="submit">Login</button>
-                </form>
-                <div class="mt-4 text-center text-muted small bg-light p-3 rounded">
-                    <p class="mb-2"><strong>First time setup?</strong> <a href="{{ url_for('auth.register_dummy') }}" class="text-decoration-none">Click here to generate mock users</a></p>
-                    <ul class="list-unstyled mb-0 text-start d-inline-block">
-                        <li>👤 <strong>User:</strong> user@test.com / password</li>
-                        <li>🛡️ <strong>Admin:</strong> admin@test.com / admin</li>
-                    </ul>
                 </div>
             </div>
+        </div>
+
+        <!-- Form Area -->
+        <div class="auth-form-container">
+            <div class="mb-5">
+                <h2 class="fw-800 text-navy mb-2">Staff Portal</h2>
+                <p class="text-muted">Please sign in to access the prediction system.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="mb-4">
+                    <label for="email" class="form-label text-uppercase small tracking-wider">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-soft-white border-end-0 py-3 ps-3"><i class="bi bi-envelope text-muted"></i></span>
+                        <input type="email" class="form-control bg-soft-white border-start-0 py-3" id="email" name="email" placeholder="agent@homefinancing.com.my" required>
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <label for="password" class="form-label text-uppercase small tracking-wider mb-0">Password</label>
+                        <a href="#" class="text-emerald-green small fw-bold text-decoration-none">Forgot Password?</a>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text bg-soft-white border-end-0 py-3 ps-3"><i class="bi bi-lock text-muted"></i></span>
+                        <input type="password" class="form-control bg-soft-white border-start-0 py-3" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                        <label class="form-check-label small fw-semibold text-muted" for="remember">
+                            Keep me signed in for 30 days
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-navy w-100 py-3 rounded-4 fw-bold shadow-lg mb-4">
+                    Sign In to Portal <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+
+                <div class="p-4 bg-light rounded-4 border border-dashed text-center">
+                    <h6 class="small fw-bold text-navy mb-3"><i class="bi bi-info-circle-fill me-2"></i>Demo Credentials</h6>
+                    <div class="d-flex justify-content-center gap-3 small text-muted">
+                        <div>
+                            <span class="fw-bold text-dark">Admin:</span> admin@test.com / admin123
+                        </div>
+                        <div class="vr"></div>
+                        <div>
+                            <span class="fw-bold text-dark">Staff:</span> staff@test.com / staff123
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

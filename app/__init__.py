@@ -11,15 +11,19 @@ login_manager.login_message_category = 'info'
 def create_app(config_class=Config):
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.from_object(config_class)
-    
-    # Initialize MongoEngine
-    connect(host=app.config['MONGODB_SETTINGS']['host'])
-    
+
+    # Use real MongoDB Atlas in production, fall back to mongomock for local dev
+    mongo_uri = os.environ.get('MONGO_URI')
+    if mongo_uri:
+        connect(host=mongo_uri)
+    else:
+        import mongomock
+        connect('housing_loan_db', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient)
+
     login_manager.init_app(app)
 
-    # Register models here to ensure they are known to SQLAlchemy
     from app.models import User
-    
+
     @login_manager.user_loader
     def load_user(user_id):
         return User.objects(id=user_id).first()

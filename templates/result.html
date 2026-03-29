@@ -111,6 +111,45 @@
                         </ul>
                     </div>
 
+                    <!-- Agent Advisory: Delta Comparison -->
+                    {% if delta_insights %}
+                    <div class="mt-4 p-4 rounded-4" style="border: 1px solid #fde68a; background: #fffbeb;">
+                        <h6 class="fw-bold mb-3" style="color:#92400e;">
+                            <i class="bi bi-arrow-left-right me-2"></i>
+                            Agent Advisory — Eligibility Change Detection
+                        </h6>
+                        <ul class="list-unstyled mb-0 vstack gap-3">
+                            {% for d in delta_insights %}
+                            <li class="d-flex align-items-start gap-3">
+                                <div class="flex-shrink-0 mt-1">
+                                    {% if d.type == 'danger' %}
+                                    <span class="badge rounded-circle p-2" style="background:#fee2e2;">
+                                        <i class="bi {{ d.icon }} text-danger"></i>
+                                    </span>
+                                    {% elif d.type == 'success' %}
+                                    <span class="badge rounded-circle p-2" style="background:#d1fae5;">
+                                        <i class="bi {{ d.icon }} text-success"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="badge rounded-circle p-2" style="background:#fef3c7;">
+                                        <i class="bi {{ d.icon }}" style="color:#92400e;"></i>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 small" style="line-height:1.6;">{{ d.text }}</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <p class="x-small text-muted mt-3 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Comparison is made against the most recent previous submission by this applicant.
+                            Thresholds: DSR ±5%, NDI ±RM200, Credit Score ±30 pts.
+                        </p>
+                    </div>
+                    {% endif %}
+
+
+
                     <!-- Post-Submission Eligibility Re-Assessment -->
                     {% if eligibility_checks %}
                     <div class="mt-4 p-4 rounded-4" style="border: 1px solid #e2e8f0; background:#fafafa;">

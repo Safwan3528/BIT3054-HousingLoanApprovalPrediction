@@ -404,8 +404,142 @@ def result(id):
     if str(application.user.id) != str(current_user.id) and current_user.role != 'admin':
         flash("Unauthorized access", "danger")
         return redirect(url_for('main.dashboard'))
-        
+
+    # --- Agent Advisory: Delta Comparison vs Previous Assessment ---
+    delta_insights = []
+    try:
+        # Fetch the most recent PREVIOUS application by the same user (exclude current)
+        prev_app = (LoanApplication.objects(user=application.user, id__ne=application.id)
+                    .order_by('-created_at').first())
+
+        if prev_app:
+            curr_dsr = float(application.dsr or 0)
+            prev_dsr = float(prev_app.dsr or 0)
+
+            curr_ndi = float(application.ndi or 0)
+            prev_ndi = float(prev_app.ndi or 0)
+
+            curr_cs  = float(application.credit_score or 0)
+            prev_cs  = float(prev_app.credit_score or 0)
+
+            date_str = prev_app.created_at.strftime('%d %b %Y')
+
+            # 1. DSR Drift
+            dsr_diff = curr_dsr - prev_dsr
+            if dsr_diff >= 5:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-graph-up-arrow",
+                    "text": (
+                        f"Your DSR has increased from {prev_dsr:.1f}% → {curr_dsr:.1f}% "
+                        f"(+{dsr_diff:.1f}%) since {date_str}. "
+                        f"This now exceeds most banks' approval threshold. "
+                        f"Avoid taking on any additional financial obligations until your housing loan is approved."
+                    )
+                })
+            elif dsr_diff <= -5:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-graph-down-arrow",
+                    "text": (
+                        f"DSR improved from {prev_dsr:.1f}% → {curr_dsr:.1f}% "
+                        f"({dsr_diff:.1f}%) since {date_str}. "
+                        f"Your financial commitments have reduced positively."
+                    )
+                })
+
+            # 2. NDI Drift
+            ndi_diff = curr_ndi - prev_ndi
+            if ndi_diff <= -200:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-wallet2",
+                    "text": (
+                        f"Your Net Disposable Income has dropped by RM {abs(ndi_diff):,.0f} "
+                        f"(from RM {prev_ndi:,.0f} → RM {curr_ndi:,.0f}) since {date_str}. "
+                        f"Consider settling or reducing existing commitments to restore your NDI to a sustainable level."
+                    )
+                })
+            elif ndi_diff >= 200:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-wallet2",
+                    "text": (
+                        f"NDI improved by RM {abs(ndi_diff):,.0f} "
+                        f"(RM {prev_ndi:,.0f} → RM {curr_ndi:,.0f}) since {date_str}. "
+                        f"Your disposable income buffer has strengthened."
+                    )
+                })
+
+            # 3. Credit Score Drift
+            cs_diff = curr_cs - prev_cs
+            if cs_diff <= -30:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-credit-card-2-front",
+                    "text": (
+                        f"Credit score has dropped from {int(prev_cs)} → {int(curr_cs)} "
+                        f"({int(cs_diff)}) since {date_str}. "
+                        f"A new credit application may have been detected in your profile. "
+                        f"Banks include credit limit exposure in DSR calculations — "
+                        f"avoid new credit applications during the approval waiting period."
+                    )
+                })
+            elif cs_diff >= 30:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-credit-card-2-front",
+                    "text": (
+                        f"Credit score improved from {int(prev_cs)} → {int(curr_cs)} "
+                        f"(+{int(cs_diff)}) since {date_str}. "
+                        f"This strengthens your creditworthiness in the bank's review."
+                    )
+                })
+
+            # 4. CCRIS Status Change
+            prev_ccris = (prev_app.ccris_status or 'clean').lower()
+            curr_ccris = (application.ccris_status or 'clean').lower()
+            if prev_ccris in ['clean', 'good'] and curr_ccris in ['late_payment', 'arrears']:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-exclamation-triangle",
+                    "text": (
+                        f"CCRIS status has changed from '{prev_ccris.title()}' → '{curr_ccris.replace('_',' ').title()}' "
+                        f"since {date_str}. "
+                        f"Contact your bank immediately and provide updated payment records to avoid an automatic rejection."
+                    )
+                })
+
+            # 5. Employment Sector Change
+            prev_emp = (prev_app.employment_sector or '').strip()
+            curr_emp = (application.employment_sector or '').strip()
+            if prev_emp and curr_emp and prev_emp != curr_emp:
+                delta_insights.append({
+                    "type": "warning",
+                    "icon": "bi-briefcase",
+                    "text": (
+                        f"Employment sector changed from '{prev_emp}' → '{curr_emp}' since {date_str}. "
+                        f"A sector change may affect income stability perception. "
+                        f"Inform your bank immediately and provide updated employment and income documents."
+                    )
+                })
+
+            # No change detected (positive signal)
+            if not delta_insights:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-shield-check",
+                    "text": (
+                        f"No significant financial changes detected since your previous assessment on {date_str}. "
+                        f"Your eligibility profile remains stable."
+                    )
+                })
+
+    except Exception as e:
+        print(f"Delta comparison error: {e}")
+
     # Full Affordability Engine (Expert Multi-Constraint Model)
+
     suggested_banks = []
     
     # Dynamic AI Insights Generator
@@ -657,7 +791,9 @@ def result(id):
                            suggested_banks=suggested_banks,
                            ai_insights=ai_insights,
                            recommended_price=recommended_price,
-                           eligibility_checks=eligibility_checks)
+                           eligibility_checks=eligibility_checks,
+                           delta_insights=delta_insights)
+
 
 
 

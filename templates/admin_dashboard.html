@@ -55,15 +55,15 @@
             </div>
             <div class="card-body p-0">
                 <div class="row g-0">
-                    <div class="col-md-3 border-end p-4 text-center">
+                    <div class="col-md-3 border-end mobile-border-end-0 p-4 text-center">
                         <p class="text-muted small fw-bold text-uppercase mb-2">Algorithm</p>
                         <h6 class="fw-800 text-navy mb-0">{{ metrics.model_name if metrics else 'N/A' }}</h6>
                     </div>
-                    <div class="col-md-3 border-end p-4 text-center">
+                    <div class="col-md-3 border-end mobile-border-end-0 p-4 text-center">
                         <p class="text-muted small fw-bold text-uppercase mb-2">Accuracy</p>
                         <h6 class="fw-800 text-emerald-green mb-0">{{ metrics.accuracy if metrics else '0' }}%</h6>
                     </div>
-                    <div class="col-md-3 border-end p-4 text-center">
+                    <div class="col-md-3 border-end mobile-border-end-0 p-4 text-center">
                         <p class="text-muted small fw-bold text-uppercase mb-2">F1 Score</p>
                         <h6 class="fw-800 text-emerald-green mb-0">{{ metrics.f1 if metrics else '0' }}</h6>
                     </div>
@@ -80,14 +80,14 @@
 
 <!-- Global Application Logs -->
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+    <div class="card-header bg-white border-0 py-4 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <h5 class="card-title mb-0">System-wide Prediction Logs</h5>
-        <div class="d-flex gap-2">
-            <div class="input-group input-group-sm" style="width: 200px;">
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100" style="max-width: 400px;">
+            <div class="input-group input-group-sm w-100">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                 <input type="text" id="logSearch" class="form-control border-start-0 ps-0" placeholder="Filter logs...">
             </div>
-            <button class="btn btn-emerald-green btn-sm px-3 text-white rounded-pill shadow-sm" id="btnExportCSV">
+            <button class="btn btn-emerald-green btn-sm px-3 text-white rounded-pill shadow-sm w-100 w-sm-auto" style="min-width: 120px;" id="btnExportCSV">
                 <i class="bi bi-download me-1"></i> Export CSV
             </button>
         </div>

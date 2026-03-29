@@ -114,18 +114,18 @@
             <thead class="bg-light">
                 <tr>
                     <th class="ps-4 py-3 small text-uppercase text-muted fw-800">Ref ID</th>
-                    <th class="py-3 small text-uppercase text-muted fw-800">Staff User</th>
-                    <th class="py-3 small text-uppercase text-muted fw-800">Income (RM)</th>
+                    <th class="py-3 small text-uppercase text-muted fw-800">User</th>
+                    <th class="py-3 small text-uppercase text-muted fw-800 d-none d-md-table-cell">Income (RM)</th>
                     <th class="py-3 small text-uppercase text-muted fw-800">Prediction</th>
-                    <th class="py-3 small text-uppercase text-muted fw-800">Confidence</th>
-                    <th class="pe-4 py-3 small text-uppercase text-muted fw-800 text-end">Timestamp</th>
+                    <th class="py-3 small text-uppercase text-muted fw-800 d-none d-lg-table-cell">Confidence</th>
+                    <th class="pe-4 py-3 small text-uppercase text-muted fw-800 text-end d-none d-md-table-cell">Timestamp</th>
                 </tr>
             </thead>
             <tbody>
                 {% for app in applications %}
                 <tr>
                     <td class="ps-4">
-                        <div class="fw-bold text-navy">#{{ (app.id | string)[-6:] | upper }}</div>
+                        <div class="fw-bold text-navy small">#{{ (app.id | string)[-6:] | upper }}</div>
                     </td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
@@ -133,7 +133,7 @@
                             <span class="fw-semibold text-secondary small">{{ app.user.name }}</span>
                         </div>
                     </td>
-                    <td>
+                    <td class="d-none d-md-table-cell">
                         <div class="fw-bold small">RM {{ "{:,.2f}".format(app.income) }}</div>
                     </td>
                     <td>
@@ -143,14 +143,15 @@
                         <span class="badge-rejected x-small"><i class="bi bi-x-circle me-1"></i> Rejected</span>
                         {% endif %}
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         <div class="progress" style="height: 6px; width: 80px;">
                             <div class="progress-bar bg-emerald-green" role="progressbar" style="width: 85%;" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                         <span class="x-small fw-bold text-muted">85%</span>
                     </td>
-                    <td class="pe-4 text-end text-muted x-small">
+                    <td class="pe-4 text-end text-muted x-small d-none d-md-table-cell">
                         {{ app.created_at.strftime('%d %b %Y, %H:%M') }}
+
                     </td>
                 </tr>
                 {% endfor %}

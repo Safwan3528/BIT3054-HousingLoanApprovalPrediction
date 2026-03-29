@@ -822,6 +822,49 @@ def admin_dashboard():
                            metrics=metrics)
 
 
+@main_bp.route('/admin/all_records')
+@login_required
+def all_records():
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    page      = int(request.args.get('page', 1))
+    per_page  = 20
+    q         = request.args.get('q', '').strip()
+    status    = request.args.get('status', '')  # 'Approved' | 'Rejected' | ''
+
+    qs = LoanApplication.objects().order_by('-created_at')
+
+    if status in ['Approved', 'Rejected']:
+        qs = qs.filter(prediction=status)
+
+    all_apps  = list(qs)
+
+    # Client-name filter (MongoEngine doesn't support reverse ref search easily)
+    if q:
+        all_apps = [a for a in all_apps
+                    if q.lower() in (a.full_name or '').lower()
+                    or q.lower() in str(a.id)[-6:].lower()
+                    or q.lower() in (a.user.name or '').lower()]
+
+    total      = len(all_apps)
+    total_pages = max(1, -(-total // per_page))   # ceiling division
+    page        = max(1, min(page, total_pages))
+    start       = (page - 1) * per_page
+    paginated   = all_apps[start:start + per_page]
+
+    return render_template('all_records.html',
+                           applications=paginated,
+                           page=page,
+                           total_pages=total_pages,
+                           total=total,
+                           q=q,
+                           status=status)
+
+
+
+
 @main_bp.route('/admin/users')
 @login_required
 def admin_users():

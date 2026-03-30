@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}All Network Records{% endblock %}
+{% block title %}All Application Records{% endblock %}
 {% block page_title %}All Loan Application Records{% endblock %}
 
 {% block content %}
@@ -8,37 +8,51 @@
 <!-- Toolbar -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body py-3 px-4">
-        <form method="GET" action="{{ url_for('main.all_records') }}" class="row g-2 align-items-end">
-            <!-- Search -->
-            <div class="col-12 col-md-5">
-                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Search</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="q" class="form-control border-start-0"
-                           placeholder="Client name, Ref ID, Staff..." value="{{ q }}">
+        <form method="GET" action="{{ url_for('main.all_records') }}">
+            <div class="row g-2 align-items-end">
+                <!-- Search -->
+                <div class="col-12 col-md-5">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Search</label>
+                    <div class="input-group" style="height:38px;">
+                        <span class="input-group-text bg-white border-end-0 px-3">
+                            <i class="bi bi-search text-muted" style="font-size:0.85rem;"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control border-start-0"
+                               style="height:38px; font-size:0.875rem;"
+                               placeholder="Client name, Ref ID, Staff..." value="{{ q }}">
+                    </div>
                 </div>
-            </div>
-            <!-- Status filter -->
-            <div class="col-6 col-md-3">
-                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
-                <select name="status" class="form-select form-select-sm">
-                    <option value="" {% if not status %}selected{% endif %}>All</option>
-                    <option value="Approved" {% if status == 'Approved' %}selected{% endif %}>Approved</option>
-                    <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
-                </select>
-            </div>
-            <!-- Buttons -->
-            <div class="col-6 col-md-4 d-flex gap-2">
-                <button type="submit" class="btn btn-navy btn-sm px-4 rounded-pill fw-bold w-100">
-                    <i class="bi bi-funnel me-1"></i> Filter
-                </button>
-                <a href="{{ url_for('main.all_records') }}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill fw-bold">
-                    <i class="bi bi-x-lg"></i>
-                </a>
+                <!-- Status -->
+                <div class="col-6 col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                    <select name="status" class="form-select" style="height:38px; font-size:0.875rem;">
+                        <option value="" {% if not status %}selected{% endif %}>All</option>
+                        <option value="Approved" {% if status == 'Approved' %}selected{% endif %}>Approved</option>
+                        <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <!-- Buttons — invisible label keeps baseline aligned with inputs above -->
+                <div class="col-6 col-md-4 d-flex gap-2">
+                    <label class="form-label mb-1 d-none d-md-block" style="visibility:hidden;">_</label>
+                    <div class="d-flex gap-2 w-100 align-items-center" style="height:38px;">
+                        <button type="submit" class="btn btn-navy rounded-pill fw-bold flex-grow-1 h-100 d-flex align-items-center justify-content-center"
+                                style="font-size:0.875rem;">
+                            <i class="bi bi-funnel-fill"></i>
+                            <span class="d-none d-md-inline ms-1">Filter</span>
+                        </button>
+                        <a href="{{ url_for('main.all_records') }}"
+                           class="btn rounded-pill fw-bold flex-shrink-0 h-100 d-flex align-items-center justify-content-center px-3"
+                           style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:0.875rem; min-width:42px;">
+                            <i class="bi bi-x-lg"></i>
+                            <span class="d-none d-md-inline ms-1">Clear</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
+
 
 <!-- Record count -->
 <div class="d-flex justify-content-between align-items-center mb-3 px-1">
@@ -132,9 +146,9 @@
                     <!-- Prediction -->
                     <td>
                         {% if app.prediction == 'Approved' %}
-                        <span class="badge-approved x-small"><i class="bi bi-check2-circle me-1"></i>Approved</span>
+                        <span class="badge-approved"><i class="bi bi-check2-circle me-1"></i>Approved</span>
                         {% elif app.prediction == 'Rejected' %}
-                        <span class="badge-rejected x-small"><i class="bi bi-x-circle me-1"></i>Rejected</span>
+                        <span class="badge-rejected"><i class="bi bi-x-circle me-1"></i>Rejected</span>
                         {% else %}
                         <span class="text-muted x-small">Pending</span>
                         {% endif %}

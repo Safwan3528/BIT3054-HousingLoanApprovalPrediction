@@ -10,6 +10,7 @@
     --card-border: #e2e8f0;
     --sidebar-width: 280px;
     --header-height: 70px;
+    --sidebar-collapsed-width: 80px;
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
 
@@ -40,7 +41,6 @@ body {
 .wrapper {
     display: flex;
     width: 100%;
-    align-items: stretch;
 }
 
 #sidebar {
@@ -107,13 +107,6 @@ body {
     .stat-card {
         padding: 1.25rem 1rem;
     }
-    .mobile-border-end-0 {
-        border-right: none !important;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .mobile-border-end-0:last-child {
-        border-bottom: none;
-    }
 }
 
 /* Sidebar Styling */
@@ -151,14 +144,22 @@ body {
     font-weight: 500;
 }
 
+
 #sidebar ul li a:hover, #sidebar ul li.active > a {
     color: #fff;
     background: var(--secondary-navy);
 }
 
+/* Sidebar Active State Premium Style */
 #sidebar ul li.active > a {
-    background: var(--emerald-green);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--emerald-green);
+    border-left: 4px solid var(--emerald-green);
+    padding-left: 21px; /* 25px - 4px */
+}
+
+#sidebar ul li.active > a i {
+    color: var(--emerald-green);
 }
 
 /* Top Header */
@@ -381,19 +382,31 @@ body {
 
 /* Badges */
 .badge-approved {
+    display: inline-flex;
+    align-items: center;
     background-color: var(--emerald-light);
     color: var(--emerald-dark);
     font-weight: 700;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .badge-rejected {
+    display: inline-flex;
+    align-items: center;
     background-color: #fee2e2;
     color: #991b1b;
     font-weight: 700;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(185, 28, 28, 0.2);
 }
 
 /* Auth Page */
@@ -451,8 +464,29 @@ body {
 .text-navy { color: var(--primary-navy) !important; }
 .text-emerald-green { color: var(--emerald-green) !important; }
 
-@media (max-width: 768px) {
+/* Animations */
+@keyframes pulse-opacity {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
 
+.animate-pulse {
+    animation: pulse-opacity 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animations */
+@keyframes pulse-opacity {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.animate-pulse {
+    animation: pulse-opacity 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (max-width: 768px) {
     .auth-card {
         flex-direction: column;
     }

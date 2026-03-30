@@ -110,7 +110,15 @@
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" id="logTable">
+        <table class="table table-hover align-middle mb-0 w-100" id="logTable" style="table-layout: fixed;">
+            <colgroup>
+                <col style="width: 20%;">
+                <col style="width: 35%;">
+                <col class="d-none d-md-table-cell" style="width: 20%;">
+                <col style="width: 25%;">
+                <col class="d-none d-lg-table-cell" style="width: 15%;">
+                <col class="d-none d-md-table-cell" style="width: 20%;">
+            </colgroup>
             <thead class="bg-light">
                 <tr>
                     <th class="ps-4 py-3 small text-uppercase text-muted fw-800">Ref ID</th>
@@ -138,9 +146,9 @@
                     </td>
                     <td>
                         {% if app.prediction == 'Approved' %}
-                        <span class="badge-approved x-small"><i class="bi bi-check2-circle me-1"></i> Approved</span>
+                        <span class="badge-approved"><i class="bi bi-check2-circle me-1"></i>Approved</span>
                         {% else %}
-                        <span class="badge-rejected x-small"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+                        <span class="badge-rejected"><i class="bi bi-x-circle me-1"></i>Rejected</span>
                         {% endif %}
                     </td>
                     <td class="d-none d-lg-table-cell">
@@ -159,8 +167,8 @@
         </table>
     </div>
     <div class="card-footer bg-white border-0 py-3 text-center">
-        <a href="{{ url_for('main.all_records') }}" class="small fw-bold text-emerald-green text-decoration-none">
-            View All Network Records <i class="bi bi-arrow-right ms-1"></i>
+        <a href="{{ url_for('main.history') }}" class="small fw-bold text-emerald-green text-decoration-none">
+            View All Application Records <i class="bi bi-arrow-right ms-1"></i>
         </a>
     </div>
 </div>

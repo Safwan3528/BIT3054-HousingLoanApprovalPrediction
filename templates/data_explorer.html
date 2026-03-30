@@ -8,39 +8,47 @@
 <!-- ── Summary Bar ─────────────────────────────────────────────────── -->
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card stat-card border-0 py-3">
-            <div class="stat-icon bg-emerald-light text-emerald-green">
-                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-emerald-light text-emerald-green flex-shrink-0">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
             </div>
-            <div class="stat-value">{{ "{:,}".format(total_records) }}</div>
-            <div class="stat-label">Total Records</div>
+            <div class="stat-value-sm">{{ "{:,}".format(total_records) }}</div>
+            <div class="stat-label-sm">Total Records</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card stat-card border-0 py-3">
-            <div class="stat-icon bg-emerald-light text-emerald-green">
-                <i class="bi bi-check-circle-fill"></i>
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-emerald-light text-emerald-green flex-shrink-0">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
             </div>
-            <div class="stat-value">{{ approval_rate }}%</div>
-            <div class="stat-label">Approval Rate</div>
+            <div class="stat-value-sm">{{ approval_rate }}%</div>
+            <div class="stat-label-sm">Approval Rate</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card stat-card border-0 py-3">
-            <div class="stat-icon bg-primary-navy bg-opacity-10 text-navy">
-                <i class="bi bi-cash-stack"></i>
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-primary-navy bg-opacity-10 text-navy flex-shrink-0">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
             </div>
-            <div class="stat-value">RM {{ "{:,.0f}".format(avg_income) }}</div>
-            <div class="stat-label">Avg Applicant Income</div>
+            <div class="stat-value-sm" style="font-size:1.1rem;">RM {{ "{:,.0f}".format(avg_income) }}</div>
+            <div class="stat-label-sm">Avg Income</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card stat-card border-0 py-3">
-            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                <i class="bi bi-bank2"></i>
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-warning bg-opacity-10 text-warning flex-shrink-0">
+                    <i class="bi bi-bank2"></i>
+                </div>
             </div>
-            <div class="stat-value">RM {{ "{:,.0f}".format(avg_loan) }}</div>
-            <div class="stat-label">Avg Loan Amount</div>
+            <div class="stat-value-sm" style="font-size:1.1rem;">RM {{ "{:,.0f}".format(avg_loan) }}</div>
+            <div class="stat-label-sm">Avg Loan</div>
         </div>
     </div>
 </div>
@@ -76,17 +84,18 @@
             </div>
 
             <!-- Buttons -->
-            <div class="col-6 col-md-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary flex-fill rounded-3 fw-bold">
-                    <i class="bi bi-funnel me-1"></i> Filter
+            <div class="col-6 col-md-4 d-flex gap-2 align-items-end">
+                <button type="submit" class="btn btn-primary flex-fill rounded-3 fw-bold" style="height:38px;">
+                    <i class="bi bi-funnel-fill"></i>
+                    <span class="d-none d-md-inline ms-1">Filter</span>
                 </button>
-                <a href="{{ url_for('main.download_dataset') }}" class="btn btn-emerald-green rounded-3" title="Download Full Dataset">
+                <a href="{{ url_for('main.download_dataset') }}" class="btn btn-emerald-green rounded-3 d-flex align-items-center justify-content-center" style="height:38px; width:38px;" title="Download Full Dataset">
                     <i class="bi bi-download"></i>
                 </a>
-                <a href="{{ url_for('main.data_explorer') }}" class="btn btn-light rounded-3">
-                    <i class="bi bi-x-circle"></i>
+                <a href="{{ url_for('main.data_explorer') }}" class="btn btn-light rounded-3 d-flex align-items-center justify-content-center" style="height:38px; width:38px;" title="Clear filters">
+                    <i class="bi bi-x-lg"></i>
                 </a>
-                <a href="{{ url_for('main.dataset_management') }}" class="btn btn-light rounded-3" title="Back to Dataset Management">
+                <a href="{{ url_for('main.dataset_management') }}" class="btn btn-light rounded-3 d-flex align-items-center justify-content-center" style="height:38px; width:38px;" title="Back">
                     <i class="bi bi-arrow-left"></i>
                 </a>
             </div>

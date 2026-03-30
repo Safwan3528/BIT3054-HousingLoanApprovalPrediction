@@ -4,56 +4,63 @@
 {% block page_title %}Dataset & Training Management{% endblock %}
 
 {% block content %}
-<div class="row g-4 mb-5">
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-emerald-light text-emerald-green">
-                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
-            </div>
-            <div class="stat-value">{{ total_records or 0 }}</div>
-            <div class="stat-label d-flex justify-content-between align-items-center">
-                <span>Total Records</span>
-                <span class="badge bg-emerald-light text-emerald-green x-small fw-800 px-2 py-1 rounded-pill">
-                    <i class="bi bi-shield-check me-1"></i>Pre-processing: Active
+<div class="row g-3 mb-5">
+    <!-- Total Records -->
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-emerald-light text-emerald-green flex-shrink-0">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
+                <span class="badge bg-emerald-light text-emerald-green x-small fw-800 px-2 py-1 rounded-pill d-none d-md-inline">
+                    <i class="bi bi-shield-check me-1"></i>Active
                 </span>
             </div>
+            <div class="stat-value-sm">{{ total_records or 0 }}</div>
+            <div class="stat-label-sm">Total Records</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card border-0" role="button" data-bs-toggle="modal" data-bs-target="#missingValuesModal"
-             style="cursor:pointer; transition: transform .15s, box-shadow .15s;"
-             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.10)'"
-             onmouseleave="this.style.transform='';this.style.boxShadow=''">
-            <div class="stat-icon {% if missing_values and missing_values > 0 %}bg-warning{% else %}bg-emerald-light{% endif %} bg-opacity-10 text-{% if missing_values and missing_values > 0 %}warning{% else %}emerald-green{% endif %}">
-                <i class="bi {% if missing_values and missing_values > 0 %}bi-search-heart{% else %}bi-check-all{% endif %}"></i>
+    <!-- Missing Values -->
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100" role="button"
+             data-bs-toggle="modal" data-bs-target="#missingValuesModal"
+             style="cursor:pointer;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm {% if missing_values and missing_values > 0 %}bg-warning bg-opacity-10 text-warning{% else %}bg-emerald-light text-emerald-green{% endif %} flex-shrink-0">
+                    <i class="bi {% if missing_values and missing_values > 0 %}bi-search-heart{% else %}bi-check-all{% endif %}"></i>
+                </div>
             </div>
-            <div class="stat-value">{{ missing_values or 0 }}</div>
-            <div class="stat-label">Missing Values <i class="bi bi-box-arrow-up-right ms-1 small"></i></div>
+            <div class="stat-value-sm">{{ missing_values or 0 }}</div>
+            <div class="stat-label-sm">Missing Values <i class="bi bi-box-arrow-up-right ms-1"></i></div>
         </div>
     </div>
-    <!-- ML Features — clickable stat card -->
-    <div class="col-md-3">
-        <div class="card stat-card border-0" role="button" onclick="openFeaturesModal()" title="View all ML features"
-             style="cursor:pointer; transition: transform .15s, box-shadow .15s;"
-             onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.10)'"
-             onmouseleave="this.style.transform='';this.style.boxShadow=''">
-            <div class="stat-icon bg-primary-navy bg-opacity-10 text-navy">
-                <i class="bi bi-tags-fill"></i>
+    <!-- ML Features -->
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100" role="button"
+             onclick="openFeaturesModal()" style="cursor:pointer;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-primary-navy bg-opacity-10 text-navy flex-shrink-0">
+                    <i class="bi bi-tags-fill"></i>
+                </div>
             </div>
-            <div class="stat-value">14</div>
-            <div class="stat-label">ML Features <i class="bi bi-box-arrow-up-right ms-1 small"></i></div>
+            <div class="stat-value-sm">14</div>
+            <div class="stat-label-sm">ML Features <i class="bi bi-box-arrow-up-right ms-1"></i></div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-emerald-light text-emerald-green">
-                <i class="bi bi-calendar-check-fill"></i>
+    <!-- Dataset Version -->
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="stat-icon-sm bg-emerald-light text-emerald-green flex-shrink-0">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
             </div>
-            <div class="stat-value">v2.4</div>
-            <div class="stat-label">Dataset Version</div>
+            <div class="stat-value-sm">v2.4</div>
+            <div class="stat-label-sm">Dataset Version</div>
         </div>
     </div>
 </div>
+
 
 <div class="row g-4">
     <!-- Upload & Training Section -->
@@ -112,43 +119,51 @@
     <!-- Preview Table -->
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Dataset Preview (Top 100)</h5>
-                <div class="d-flex align-items-center gap-2">
-                    <a href="/admin/download_csv" class="btn btn-sm btn-outline-navy rounded-pill px-3">
-                        <i class="bi bi-download me-1"></i> Download CSV
-                    </a>
-                    <a href="{{ url_for('main.data_explorer') }}" class="small text-emerald-green fw-bold text-decoration-none">
-                        Full Data Explorer <i class="bi bi-arrow-right"></i>
-                    </a>
+            <!-- Header: stacks on mobile -->
+            <div class="card-header bg-white border-0 px-4 pt-4 pb-3">
+                <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                    <h5 class="card-title mb-0">Dataset Preview <span class="text-muted fw-normal small">(Top 100)</span></h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="/admin/download_csv" class="btn btn-sm btn-outline-navy rounded-pill px-3">
+                            <i class="bi bi-download me-1"></i>
+                            <span class="d-none d-sm-inline">Download </span>CSV
+                        </a>
+                        <a href="{{ url_for('main.data_explorer') }}" class="small text-emerald-green fw-bold text-decoration-none text-nowrap">
+                            Explorer <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 x-small fw-semibold">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4 py-2">Gender</th>
-                            <th class="py-2">Income</th>
-                            <th class="py-2">LoanAmt</th>
-                            <th class="py-2">Credit_History</th>
-                            <th class="py-2">Result</th>
+                            <th class="ps-4 py-2 d-none d-sm-table-cell">Gender</th>
+                            <th class="ps-4 ps-sm-0 py-2">Income</th>
+                            <th class="py-2">Loan Amt</th>
+                            <th class="py-2 d-none d-sm-table-cell">Credit</th>
+                            <th class="py-2 text-center">Result</th>
                         </tr>
                     </thead>
                     <tbody class="text-muted">
                         {% for row in preview_data %}
                         <tr>
-                            <td class="ps-4">{{ row.Gender }}</td>
-                            <td>RM {{ "{:,.0f}".format(row.ApplicantIncome) }}</td>
-                            <td>RM {{ "{:,.0f}".format(row.LoanAmount) }}</td>
-                            <td>{{ row.Credit_History }}</td>
-                            <td><span class="text-{{ 'emerald-green' if row.Loan_Status == 'Y' else 'danger' }}">{{ row.Loan_Status }}</span></td>
+                            <td class="ps-4 d-none d-sm-table-cell">{{ row.Gender }}</td>
+                            <td class="ps-4 ps-sm-0" style="white-space:nowrap;">RM {{ "{:,.0f}".format(row.ApplicantIncome) }}</td>
+                            <td style="white-space:nowrap;">RM {{ "{:,.0f}".format(row.LoanAmount) }}</td>
+                            <td class="d-none d-sm-table-cell">{{ row.Credit_History }}</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-2 {{ 'bg-success bg-opacity-10 text-success' if row.Loan_Status == 'Y' else 'bg-danger bg-opacity-10 text-danger' }}">
+                                    {{ 'Y' if row.Loan_Status == 'Y' else 'N' }}
+                                </span>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="card-footer bg-white border-0 p-4 text-center">
-                <p class="small text-muted mb-0">Last uploaded: 15/03/2026 by Admin</p>
+            <div class="card-footer bg-white border-0 px-4 py-3 text-center">
+                <p class="x-small text-muted mb-0">Last trained/updated: {{ last_train }} by Admin</p>
             </div>
         </div>
     </div>
@@ -472,11 +487,13 @@ async function runDataCleaning() {
                             </tr>
                         </thead>
                         <tbody>
-                            {% if missing_values and missing_values > 0 %}
-                                <tr><td class="ps-3 py-2 fw-semibold">Gender</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">Married</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">Credit_History</td><td class="text-end pe-3 text-danger fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">LoanAmount</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
+                            {% if missing_breakdown %}
+                                {% for field, count in missing_breakdown.items() %}
+                                <tr>
+                                    <td class="ps-3 py-2 fw-semibold">{{ field }}</td>
+                                    <td class="text-end pe-3 {% if count > 50 %}text-danger{% else %}text-warning{% endif %} fw-bold">~{{ count }}</td>
+                                </tr>
+                                {% endfor %}
                             {% else %}
                                 <tr>
                                     <td colspan="2" class="text-center py-5">

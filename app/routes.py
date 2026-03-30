@@ -7,6 +7,7 @@ import math
 import joblib
 import os
 import sys
+import json
 import subprocess
 import pandas as pd
 from ml_model.preprocessing import preprocess_input
@@ -191,18 +192,35 @@ def dataset_management():
     try:
         df = pd.read_csv(csv_path)
         total_records = len(df)
-        missing_values = df.isnull().sum().sum()
-        preview_data = df.head(6).to_dict('records')
+        missing_values = int(df.isnull().sum().sum())
+        preview_data = df.head(100).to_dict('records') # Show more for preview?
+        
+        # Calculate breakdown for modal
+        null_counts = df.isnull().sum()
+        missing_breakdown = null_counts[null_counts > 0].to_dict()
+        
+        # Get metadata for "Last uploaded/trained"
+        metadata_path = os.path.join(os.path.dirname(__file__), '..', 'ml_model', 'model_metadata.json')
+        last_train = "N/A"
+        if os.path.exists(metadata_path):
+            with open(metadata_path, 'r') as f:
+                meta = json.load(f)
+                last_train = meta.get('trained_at', 'N/A')
+                
     except Exception as e:
         print(f"Error reading CSV: {e}")
         total_records = 0
         missing_values = 0
         preview_data = []
+        missing_breakdown = {}
+        last_train = "N/A"
 
     return render_template('dataset_management.html', 
                            total_records=total_records,
                            missing_values=missing_values,
-                           preview_data=preview_data)
+                           preview_data=preview_data,
+                           missing_breakdown=missing_breakdown,
+                           last_train=last_train)
 
 
 @main_bp.route('/admin/clean_data', methods=['POST'])
@@ -404,8 +422,142 @@ def result(id):
     if str(application.user.id) != str(current_user.id) and current_user.role != 'admin':
         flash("Unauthorized access", "danger")
         return redirect(url_for('main.dashboard'))
-        
+
+    # --- Agent Advisory: Delta Comparison vs Previous Assessment ---
+    delta_insights = []
+    try:
+        # Fetch the most recent PREVIOUS application by the same user (exclude current)
+        prev_app = (LoanApplication.objects(user=application.user, id__ne=application.id)
+                    .order_by('-created_at').first())
+
+        if prev_app:
+            curr_dsr = float(application.dsr or 0)
+            prev_dsr = float(prev_app.dsr or 0)
+
+            curr_ndi = float(application.ndi or 0)
+            prev_ndi = float(prev_app.ndi or 0)
+
+            curr_cs  = float(application.credit_score or 0)
+            prev_cs  = float(prev_app.credit_score or 0)
+
+            date_str = prev_app.created_at.strftime('%d %b %Y')
+
+            # 1. DSR Drift
+            dsr_diff = curr_dsr - prev_dsr
+            if dsr_diff >= 5:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-graph-up-arrow",
+                    "text": (
+                        f"Your DSR has increased from {prev_dsr:.1f}% → {curr_dsr:.1f}% "
+                        f"(+{dsr_diff:.1f}%) since {date_str}. "
+                        f"This now exceeds most banks' approval threshold. "
+                        f"Avoid taking on any additional financial obligations until your housing loan is approved."
+                    )
+                })
+            elif dsr_diff <= -5:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-graph-down-arrow",
+                    "text": (
+                        f"DSR improved from {prev_dsr:.1f}% → {curr_dsr:.1f}% "
+                        f"({dsr_diff:.1f}%) since {date_str}. "
+                        f"Your financial commitments have reduced positively."
+                    )
+                })
+
+            # 2. NDI Drift
+            ndi_diff = curr_ndi - prev_ndi
+            if ndi_diff <= -200:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-wallet2",
+                    "text": (
+                        f"Your Net Disposable Income has dropped by RM {abs(ndi_diff):,.0f} "
+                        f"(from RM {prev_ndi:,.0f} → RM {curr_ndi:,.0f}) since {date_str}. "
+                        f"Consider settling or reducing existing commitments to restore your NDI to a sustainable level."
+                    )
+                })
+            elif ndi_diff >= 200:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-wallet2",
+                    "text": (
+                        f"NDI improved by RM {abs(ndi_diff):,.0f} "
+                        f"(RM {prev_ndi:,.0f} → RM {curr_ndi:,.0f}) since {date_str}. "
+                        f"Your disposable income buffer has strengthened."
+                    )
+                })
+
+            # 3. Credit Score Drift
+            cs_diff = curr_cs - prev_cs
+            if cs_diff <= -30:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-credit-card-2-front",
+                    "text": (
+                        f"Credit score has dropped from {int(prev_cs)} → {int(curr_cs)} "
+                        f"({int(cs_diff)}) since {date_str}. "
+                        f"A new credit application may have been detected in your profile. "
+                        f"Banks include credit limit exposure in DSR calculations — "
+                        f"avoid new credit applications during the approval waiting period."
+                    )
+                })
+            elif cs_diff >= 30:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-credit-card-2-front",
+                    "text": (
+                        f"Credit score improved from {int(prev_cs)} → {int(curr_cs)} "
+                        f"(+{int(cs_diff)}) since {date_str}. "
+                        f"This strengthens your creditworthiness in the bank's review."
+                    )
+                })
+
+            # 4. CCRIS Status Change
+            prev_ccris = (prev_app.ccris_status or 'clean').lower()
+            curr_ccris = (application.ccris_status or 'clean').lower()
+            if prev_ccris in ['clean', 'good'] and curr_ccris in ['late_payment', 'arrears']:
+                delta_insights.append({
+                    "type": "danger",
+                    "icon": "bi-exclamation-triangle",
+                    "text": (
+                        f"CCRIS status has changed from '{prev_ccris.title()}' → '{curr_ccris.replace('_',' ').title()}' "
+                        f"since {date_str}. "
+                        f"Contact your bank immediately and provide updated payment records to avoid an automatic rejection."
+                    )
+                })
+
+            # 5. Employment Sector Change
+            prev_emp = (prev_app.employment_sector or '').strip()
+            curr_emp = (application.employment_sector or '').strip()
+            if prev_emp and curr_emp and prev_emp != curr_emp:
+                delta_insights.append({
+                    "type": "warning",
+                    "icon": "bi-briefcase",
+                    "text": (
+                        f"Employment sector changed from '{prev_emp}' → '{curr_emp}' since {date_str}. "
+                        f"A sector change may affect income stability perception. "
+                        f"Inform your bank immediately and provide updated employment and income documents."
+                    )
+                })
+
+            # No change detected (positive signal)
+            if not delta_insights:
+                delta_insights.append({
+                    "type": "success",
+                    "icon": "bi-shield-check",
+                    "text": (
+                        f"No significant financial changes detected since your previous assessment on {date_str}. "
+                        f"Your eligibility profile remains stable."
+                    )
+                })
+
+    except Exception as e:
+        print(f"Delta comparison error: {e}")
+
     # Full Affordability Engine (Expert Multi-Constraint Model)
+
     suggested_banks = []
     
     # Dynamic AI Insights Generator
@@ -609,12 +761,58 @@ def result(id):
         suggested_banks = sorted(potential_matches, key=lambda x: x.get('score', 0), reverse=True)
         if len(suggested_banks) > 5:
             suggested_banks = suggested_banks[:5]
-    
-    return render_template('result.html', 
-                           application=application, 
+
+    # --- DSR / NDI Eligibility Comparison View ---
+    dsr_val  = float(application.dsr or 0)
+    ndi_val  = float(application.ndi or 0)
+    income   = float(application.income + application.coapplicant_income)
+    cs_val   = int(application.credit_score or 0)
+
+    # Benchmarks based on Malaysian banking standards
+    dsr_limit  = 60 if income < 5000 else 70          # % ceiling
+    ndi_min    = 1200 if income < 5000 else 1500       # RM floor
+    cs_min     = 650                                    # Credit score floor
+
+    eligibility_checks = [
+        {
+            "metric"    : "Debt Service Ratio (DSR)",
+            "your_value": f"{dsr_val:.1f}%",
+            "benchmark" : f"≤ {dsr_limit}%",
+            "pass"      : dsr_val <= dsr_limit,
+            "note"      : "Ratio of total monthly commitments to gross income"
+        },
+        {
+            "metric"    : "Net Disposable Income (NDI)",
+            "your_value": f"RM {ndi_val:,.2f}",
+            "benchmark" : f"≥ RM {ndi_min:,}",
+            "pass"      : ndi_val >= ndi_min,
+            "note"      : "Remaining income after all monthly commitments"
+        },
+        {
+            "metric"    : "Credit / CCRIS Score",
+            "your_value": str(cs_val),
+            "benchmark" : f"≥ {cs_min}",
+            "pass"      : cs_val >= cs_min,
+            "note"      : "Internal credit health score derived from profile"
+        },
+        {
+            "metric"    : "CCRIS Status",
+            "your_value": (application.ccris_status or "N/A").title(),
+            "benchmark" : "Clean / Good",
+            "pass"      : (application.ccris_status or "").lower() in ["clean", "good"],
+            "note"      : "Credit Reference Information System payment status"
+        },
+    ]
+
+    return render_template('result.html',
+                           application=application,
                            suggested_banks=suggested_banks,
                            ai_insights=ai_insights,
-                           recommended_price=recommended_price)
+                           recommended_price=recommended_price,
+                           eligibility_checks=eligibility_checks,
+                           delta_insights=delta_insights)
+
+
 
 
 @main_bp.route('/admin_dashboard')
@@ -626,7 +824,8 @@ def admin_dashboard():
         
     applications = LoanApplication.objects().order_by('-created_at')
     total_users = User.objects.count()
-    total_staff = User.objects(role='user').count() # Assuming 'user' role refers to staff
+    total_loan_analysts = User.objects(role='staff').count()
+    total_auditors = User.objects(role='user').count()
     
     total_records = len(applications)
     approved_apps = sum(1 for app in applications if app.prediction == 'Approved')
@@ -637,9 +836,53 @@ def admin_dashboard():
     return render_template('admin_dashboard.html', 
                            applications=applications, 
                            total_users=total_users, 
-                           total_staff=total_staff,
+                           total_loan_analysts=total_loan_analysts,
+                           total_auditors=total_auditors,
                            approval_rate=round(approval_rate, 1),
                            metrics=metrics)
+
+
+@main_bp.route('/admin/all_records')
+@login_required
+def all_records():
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    page      = int(request.args.get('page', 1))
+    per_page  = 20
+    q         = request.args.get('q', '').strip()
+    status    = request.args.get('status', '')  # 'Approved' | 'Rejected' | ''
+
+    qs = LoanApplication.objects().order_by('-created_at')
+
+    if status in ['Approved', 'Rejected']:
+        qs = qs.filter(prediction=status)
+
+    all_apps  = list(qs)
+
+    # Client-name filter (MongoEngine doesn't support reverse ref search easily)
+    if q:
+        all_apps = [a for a in all_apps
+                    if q.lower() in (a.full_name or '').lower()
+                    or q.lower() in str(a.id)[-6:].lower()
+                    or q.lower() in (a.user.name or '').lower()]
+
+    total      = len(all_apps)
+    total_pages = max(1, -(-total // per_page))   # ceiling division
+    page        = max(1, min(page, total_pages))
+    start       = (page - 1) * per_page
+    paginated   = all_apps[start:start + per_page]
+
+    return render_template('all_records.html',
+                           applications=paginated,
+                           page=page,
+                           total_pages=total_pages,
+                           total=total,
+                           q=q,
+                           status=status)
+
+
 
 
 @main_bp.route('/admin/users')

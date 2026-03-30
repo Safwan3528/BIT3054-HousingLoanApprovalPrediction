@@ -5,43 +5,44 @@
 
 {% block content %}
 <div class="row g-3 mb-5">
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-primary-navy bg-opacity-10 text-navy">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="stat-icon-sm bg-primary-navy bg-opacity-10 text-navy mb-2">
                 <i class="bi bi-people-fill"></i>
             </div>
-            <div class="stat-value">{{ users|length }}</div>
-            <div class="stat-label">Total Accounts</div>
+            <div class="stat-value-sm">{{ users|length }}</div>
+            <div class="stat-label-sm">Total Accounts</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-emerald-light text-emerald-green">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="stat-icon-sm bg-emerald-light text-emerald-green mb-2">
                 <i class="bi bi-shield-lock-fill"></i>
             </div>
-            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'admin') | list | length }}</div>
-            <div class="stat-label">Administrators</div>
+            <div class="stat-value-sm">{{ users | selectattr('role', 'equalto', 'admin') | list | length }}</div>
+            <div class="stat-label-sm">Administrators</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-indigo bg-opacity-10 text-indigo" style="background-color: rgba(102, 16, 242, 0.1); color: #6610f2;">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="stat-icon-sm bg-indigo bg-opacity-10 text-indigo mb-2" style="background-color: rgba(102, 16, 242, 0.1); color: #6610f2;">
                 <i class="bi bi-person-vcard-fill"></i>
             </div>
-            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'staff') | list | length }}</div>
-            <div class="stat-label">Loan Analysts</div>
+            <div class="stat-value-sm">{{ users | selectattr('role', 'equalto', 'staff') | list | length }}</div>
+            <div class="stat-label-sm">Loan Analysts</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card border-0">
-            <div class="stat-icon bg-info bg-opacity-10 text-info">
+    <div class="col-6 col-md-3">
+        <div class="card stat-card-compact border-0 h-100">
+            <div class="stat-icon-sm bg-info bg-opacity-10 text-info mb-2">
                 <i class="bi bi-clipboard-check-fill"></i>
             </div>
-            <div class="stat-value">{{ users | selectattr('role', 'equalto', 'user') | list | length }}</div>
-            <div class="stat-label">Auditors / Guests</div>
+            <div class="stat-value-sm">{{ users | selectattr('role', 'equalto', 'user') | list | length }}</div>
+            <div class="stat-label-sm">Auditors</div>
         </div>
     </div>
 </div>
+
 
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
@@ -78,7 +79,7 @@
                         {% elif user.role == 'staff' %}
                         <span class="badge bg-emerald-light text-emerald-green px-3 py-2 rounded-pill small">Loan Analyst</span>
                         {% else %}
-                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill small border text-dark">Auditor / Guest</span>
+                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill small border text-dark">Auditor</span>
                         {% endif %}
                     </td>
                     <td class="pe-4 text-end">
@@ -141,9 +142,9 @@
                     <div class="mb-2">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
                         <select name="role" class="form-select py-2 shadow-none border-2" required>
-                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="staff">Loan Analyst</option>
                             <option value="admin">System Administrator</option>
-                            <option value="user">Auditor / Guest</option>
+                            <option value="user">Auditor</option>
                         </select>
                     </div>
                 </div>
@@ -177,9 +178,9 @@
                     <div class="mb-2">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
                         <select name="role" id="edit_role" class="form-select py-2 shadow-none border-2" required>
-                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="staff">Loan Analyst</option>
                             <option value="admin">System Administrator</option>
-                            <option value="user">Auditor / Guest</option>
+                            <option value="user">Auditor</option>
                         </select>
                     </div>
                 </div>

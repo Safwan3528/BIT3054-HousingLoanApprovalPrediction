@@ -38,7 +38,7 @@
                 <i class="bi bi-clipboard-check-fill"></i>
             </div>
             <div class="stat-value-sm">{{ users | selectattr('role', 'equalto', 'user') | list | length }}</div>
-            <div class="stat-label-sm">Auditors / Guests</div>
+            <div class="stat-label-sm">Auditors</div>
         </div>
     </div>
 </div>
@@ -79,7 +79,7 @@
                         {% elif user.role == 'staff' %}
                         <span class="badge bg-emerald-light text-emerald-green px-3 py-2 rounded-pill small">Loan Analyst</span>
                         {% else %}
-                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill small border text-dark">Auditor / Guest</span>
+                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill small border text-dark">Auditor</span>
                         {% endif %}
                     </td>
                     <td class="pe-4 text-end">
@@ -142,9 +142,9 @@
                     <div class="mb-2">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
                         <select name="role" class="form-select py-2 shadow-none border-2" required>
-                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="staff">Loan Analyst</option>
                             <option value="admin">System Administrator</option>
-                            <option value="user">Auditor / Guest</option>
+                            <option value="user">Auditor</option>
                         </select>
                     </div>
                 </div>
@@ -178,9 +178,9 @@
                     <div class="mb-2">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest">Access Role</label>
                         <select name="role" id="edit_role" class="form-select py-2 shadow-none border-2" required>
-                            <option value="staff">Housing Loan Analyst</option>
+                            <option value="staff">Loan Analyst</option>
                             <option value="admin">System Administrator</option>
-                            <option value="user">Auditor / Guest</option>
+                            <option value="user">Auditor</option>
                         </select>
                     </div>
                 </div>

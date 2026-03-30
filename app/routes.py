@@ -7,6 +7,7 @@ import math
 import joblib
 import os
 import sys
+import json
 import subprocess
 import pandas as pd
 from ml_model.preprocessing import preprocess_input
@@ -191,18 +192,35 @@ def dataset_management():
     try:
         df = pd.read_csv(csv_path)
         total_records = len(df)
-        missing_values = df.isnull().sum().sum()
-        preview_data = df.head(6).to_dict('records')
+        missing_values = int(df.isnull().sum().sum())
+        preview_data = df.head(100).to_dict('records') # Show more for preview?
+        
+        # Calculate breakdown for modal
+        null_counts = df.isnull().sum()
+        missing_breakdown = null_counts[null_counts > 0].to_dict()
+        
+        # Get metadata for "Last uploaded/trained"
+        metadata_path = os.path.join(os.path.dirname(__file__), '..', 'ml_model', 'model_metadata.json')
+        last_train = "N/A"
+        if os.path.exists(metadata_path):
+            with open(metadata_path, 'r') as f:
+                meta = json.load(f)
+                last_train = meta.get('trained_at', 'N/A')
+                
     except Exception as e:
         print(f"Error reading CSV: {e}")
         total_records = 0
         missing_values = 0
         preview_data = []
+        missing_breakdown = {}
+        last_train = "N/A"
 
     return render_template('dataset_management.html', 
                            total_records=total_records,
                            missing_values=missing_values,
-                           preview_data=preview_data)
+                           preview_data=preview_data,
+                           missing_breakdown=missing_breakdown,
+                           last_train=last_train)
 
 
 @main_bp.route('/admin/clean_data', methods=['POST'])
@@ -806,7 +824,8 @@ def admin_dashboard():
         
     applications = LoanApplication.objects().order_by('-created_at')
     total_users = User.objects.count()
-    total_staff = User.objects(role='user').count() # Assuming 'user' role refers to staff
+    total_loan_analysts = User.objects(role='staff').count()
+    total_auditors = User.objects(role='user').count()
     
     total_records = len(applications)
     approved_apps = sum(1 for app in applications if app.prediction == 'Approved')
@@ -817,7 +836,8 @@ def admin_dashboard():
     return render_template('admin_dashboard.html', 
                            applications=applications, 
                            total_users=total_users, 
-                           total_staff=total_staff,
+                           total_loan_analysts=total_loan_analysts,
+                           total_auditors=total_auditors,
                            approval_rate=round(approval_rate, 1),
                            metrics=metrics)
 

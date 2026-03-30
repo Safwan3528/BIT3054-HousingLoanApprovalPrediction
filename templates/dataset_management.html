@@ -163,7 +163,7 @@
                 </table>
             </div>
             <div class="card-footer bg-white border-0 px-4 py-3 text-center">
-                <p class="x-small text-muted mb-0">Last uploaded: 15/03/2026 by Admin</p>
+                <p class="x-small text-muted mb-0">Last trained/updated: {{ last_train }} by Admin</p>
             </div>
         </div>
     </div>
@@ -487,11 +487,13 @@ async function runDataCleaning() {
                             </tr>
                         </thead>
                         <tbody>
-                            {% if missing_values and missing_values > 0 %}
-                                <tr><td class="ps-3 py-2 fw-semibold">Gender</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">Married</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">Credit_History</td><td class="text-end pe-3 text-danger fw-bold">~75</td></tr>
-                                <tr><td class="ps-3 py-2 fw-semibold">LoanAmount</td><td class="text-end pe-3 text-warning fw-bold">~75</td></tr>
+                            {% if missing_breakdown %}
+                                {% for field, count in missing_breakdown.items() %}
+                                <tr>
+                                    <td class="ps-3 py-2 fw-semibold">{{ field }}</td>
+                                    <td class="text-end pe-3 {% if count > 50 %}text-danger{% else %}text-warning{% endif %} fw-bold">~{{ count }}</td>
+                                </tr>
+                                {% endfor %}
                             {% else %}
                                 <tr>
                                     <td colspan="2" class="text-center py-5">

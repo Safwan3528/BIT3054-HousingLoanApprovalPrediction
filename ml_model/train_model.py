@@ -59,7 +59,7 @@ def train_and_save(model_type='random_forest'):
             model = HistGradientBoostingClassifier(max_iter=100, random_state=42)
             model_display = "XGBoost (HistGradientBoosting)"
     elif model_type == 'random_forest':
-        # Matching Colab's default RandomForest
+        # Matching Colab's default RandomForest with seed 42
         model = RandomForestClassifier(random_state=42)
         model_display = "Random Forest Classifier"
     else:
